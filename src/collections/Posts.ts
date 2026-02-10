@@ -24,11 +24,6 @@ export const Post: CollectionConfig = {
       required: true,
     },
     {
-      name: 'featuredImage',
-      type: 'upload',
-      relationTo: 'media',
-    },
-    {
       name: 'publishedDate',
       type: 'date',
       admin: {
@@ -43,6 +38,23 @@ export const Post: CollectionConfig = {
         position: 'sidebar',
       },
       hasMany: true,
+    },
+    {
+      name: 'Tags',
+      type: 'relationship',
+      relationTo: 'Tags',
+      admin: {
+        position: 'sidebar',
+      },
+      hasMany: true,
+    },
+    {
+      name: 'featuredImage',
+      type: 'upload',
+      relationTo: 'media',
+      admin: {
+        position: 'sidebar',
+      },
     },
   ],
 }
