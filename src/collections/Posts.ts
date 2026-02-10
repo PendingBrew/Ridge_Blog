@@ -35,5 +35,14 @@ export const Post: CollectionConfig = {
         position: 'sidebar',
       },
     },
+    {
+      name: 'categories',
+      type: 'relationship',
+      relationTo: 'Categories',
+      admin: {
+        position: 'sidebar',
+      },
+      hasMany: true,
+    },
   ],
 }

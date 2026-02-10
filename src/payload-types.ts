@@ -70,6 +70,7 @@ export interface Config {
     users: User;
     media: Media;
     Posts: Post;
+    Categories: Category;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -80,6 +81,7 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     Posts: PostsSelect<false> | PostsSelect<true>;
+    Categories: CategoriesSelect<false> | CategoriesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -185,6 +187,17 @@ export interface Post {
   };
   featuredImage?: (number | null) | Media;
   publishedDate?: string | null;
+  categories?: (number | Category)[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "Categories".
+ */
+export interface Category {
+  id: number;
+  name: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -223,6 +236,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'Posts';
         value: number | Post;
+      } | null)
+    | ({
+        relationTo: 'Categories';
+        value: number | Category;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -316,6 +333,16 @@ export interface PostsSelect<T extends boolean = true> {
   content?: T;
   featuredImage?: T;
   publishedDate?: T;
+  categories?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "Categories_select".
+ */
+export interface CategoriesSelect<T extends boolean = true> {
+  name?: T;
   updatedAt?: T;
   createdAt?: T;
 }
