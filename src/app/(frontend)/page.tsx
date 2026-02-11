@@ -2,6 +2,9 @@ import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Search, ChevronDown, ChevronRight, ArrowUpRight, Globe, Menu } from 'lucide-react'
+import { getPayload } from 'payload'
+import config from '@payload-config'
+import { collectMeta } from 'next/dist/build/utils'
 
 // Dummy Data
 const CATEGORIES = [
@@ -17,117 +20,37 @@ const CATEGORIES = [
   'Human Resources',
 ]
 
-const POSTS = [
-  {
-    id: 1,
-    title: 'How To Be Lazy Person In The Age of AI/ML',
-    excerpt: 'We provide tips and resources from industry leaders. For real.',
-    author: 'Azunyan U. Wu',
-    readTime: '5min read',
-    category: 'Featured',
-    image:
-      'https://images.unsplash.com/photo-1713947503867-3b27964f042b?q=80&w=3132&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    featured: true,
-  },
-  {
-    id: 2,
-    title: 'Blog post title',
-    excerpt:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore...',
-    author: 'Vermillion White',
-    readTime: '5min read',
-    category: 'Category',
-    image:
-      'https://images.unsplash.com/photo-1515378960530-7c0da6231fb1?auto=format&fit=crop&q=80&w=1000',
-    featured: false,
-  },
-  {
-    id: 3,
-    title: 'Blog post title',
-    excerpt:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore...',
-    author: 'Salvador D. Gray',
-    readTime: '5min read',
-    category: 'Category',
-    image:
-      'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&q=80&w=1000',
-    featured: false,
-  },
-  {
-    id: 4,
-    title: 'Modern Architecture Designs',
-    excerpt: 'Explore the most innovative architectural designs of the modern era.',
-    author: 'Elena Fisher',
-    readTime: '8min read',
-    category: 'Architecture',
-    image:
-      'https://images.unsplash.com/photo-1511818966892-d7d671e672a2?auto=format&fit=crop&q=80&w=1000',
-    featured: false,
-  },
-  {
-    id: 5,
-    title: 'The Future of Remote Work',
-    excerpt: 'How remote work is shaping the future of industries worldwide.',
-    author: 'John Doe',
-    readTime: '4min read',
-    category: 'Business',
-    image:
-      'https://images.unsplash.com/photo-1593642532400-2682810df593?auto=format&fit=crop&q=80&w=1000',
-    featured: false,
-  },
-]
+// Data from payload
 
-export default function BlogPage() {
-  const featuredPost = POSTS.find((p) => p.featured) || POSTS[0]
-  const otherPosts = POSTS.filter((p) => !p.featured)
+export default async function BlogPage() {
+  const payload = await getPayload({ config })
+
+  // collection post
+  const { docs: posts } = await payload.find({
+    collection: 'Posts',
+  })
+
+  // collection categories
+  // const { docs: Categories } = await payload.find({
+  //   collection: 'Categories',
+  // })
+  const result = await payload.find({ collection: 'Categories' })
+  const Categories = result.docs
+
+  if (!posts || posts.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-slate-500">No posts found. Please add some in the admin panel.</p>
+      </div>
+    )
+  }
+
+  const featuredPost = posts[0]
+  const otherPosts = posts.slice(1)
 
   return (
     <div className="min-h-screen bg-white font-sans text-slate-900">
-      {/* Header */}
-      <header className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-slate-100">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="bg-indigo-600 p-1.5 rounded-lg">
-              <span className="text-white font-bold text-xl">S</span>
-            </div>
-            <span className="font-bold text-xl tracking-tight">slothui</span>
-          </div>
-
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
-            <Link href="#" className="hover:text-indigo-600 transition-colors">
-              Home
-            </Link>
-            <Link href="#" className="hover:text-indigo-600 transition-colors">
-              Product
-            </Link>
-            <Link href="#" className="hover:text-indigo-600 transition-colors">
-              Services
-            </Link>
-            <Link href="#" className="text-indigo-600">
-              Blog
-            </Link>
-            <Link href="#" className="hover:text-indigo-600 transition-colors">
-              Pricing
-            </Link>
-          </nav>
-
-          <div className="flex items-center gap-4">
-            <button className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-200 text-sm font-medium text-slate-600 hover:border-indigo-600 hover:text-indigo-600 transition-all">
-              <Globe size={16} />
-              <span>US</span>
-              <ChevronDown size={14} />
-            </button>
-            <button className="md:hidden p-2">
-              <Menu size={24} />
-            </button>
-            <ArrowUpRight
-              className="hidden md:block text-slate-400 hover:text-indigo-600 cursor-pointer"
-              size={20}
-            />
-          </div>
-        </div>
-      </header>
-
+      <hr className="h-16" />
       <main className="container mx-auto px-4 py-12">
         {/* Hero Section */}
         <div className="text-center mb-16 max-w-2xl mx-auto">
@@ -178,16 +101,16 @@ export default function BlogPage() {
             <div className="space-y-4 pt-4">
               <h3 className="text-indigo-600 font-semibold text-sm">Browse By Categories</h3>
               <ul className="space-y-1">
-                {CATEGORIES.map((category, index) => (
-                  <li key={index}>
+                {Categories.map((category) => (
+                  <li key={category.id}>
                     <button
                       className={`w-full text-left px-4 py-2 rounded-lg text-sm transition-colors ${
-                        index === 0
+                        category.id === 0
                           ? 'bg-slate-100 font-semibold text-slate-900'
                           : 'text-slate-500 hover:text-indigo-600 hover:bg-slate-50'
                       }`}
                     >
-                      {category}
+                      {category.name}
                     </button>
                   </li>
                 ))}
@@ -201,34 +124,32 @@ export default function BlogPage() {
             <div className="mb-12 group cursor-pointer">
               <div className="grid md:grid-cols-2 gap-8 items-center">
                 <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl">
-                  <Image
-                    src={featuredPost.image}
-                    alt={featuredPost.title}
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
+                  {featuredPost.featuredImage && typeof featuredPost.featuredImage === 'object' && (
+                    <Image
+                      src={featuredPost.featuredImage.url || ''}
+                      alt={featuredPost.title}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  )}
                 </div>
                 <div className="space-y-4">
                   <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700">
-                    {featuredPost.category}
+                    {typeof featuredPost.categories?.[0] === 'object'
+                      ? featuredPost.categories[0].name
+                      : 'Uncategorized'}
                   </div>
                   <h2 className="text-3xl font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
-                    <Link href={`/blog/${featuredPost.id}`}>{featuredPost.title}</Link>
+                    <Link href={`/blog/${featuredPost.slug}`}>{featuredPost.title}</Link>
                   </h2>
-                  <p className="text-slate-500 leading-relaxed">{featuredPost.excerpt}</p>
+                  <p className="text-slate-500 leading-relaxed line-clamp-3">
+                    Click to read more about {featuredPost.title}...
+                  </p>
                   <div className="flex items-center gap-3 pt-2">
-                    <div className="w-8 h-8 rounded-full bg-slate-200 overflow-hidden relative">
-                      <Image
-                        src="https://ui-avatars.com/api/?name=Azunyan+Wu&background=random"
-                        alt={featuredPost.author}
-                        fill
-                      />
-                    </div>
+                    <div className="w-8 h-8 rounded-full bg-slate-200 overflow-hidden relative"></div>
                     <div className="text-sm">
-                      <span className="font-semibold text-slate-900 block">
-                        {featuredPost.author}
-                      </span>
-                      <span className="text-slate-400">{featuredPost.readTime}</span>
+                      <span className="font-semibold text-slate-900 block">Admin</span>
+                      <span className="text-slate-400">5 min read</span>
                     </div>
                   </div>
                 </div>
@@ -237,40 +158,40 @@ export default function BlogPage() {
 
             {/* Standard Posts Grid */}
             <div className="grid md:grid-cols-2 gap-8">
-              {otherPosts.map((post) => (
+              {otherPosts.map((post: any) => (
                 <div key={post.id} className="group cursor-pointer flex flex-col h-full">
                   <Link
-                    href={`/blog/${post.id}`}
+                    href={`/blog/${post.slug}`}
                     className="block relative aspect-[16/10] overflow-hidden rounded-2xl mb-4"
                   >
-                    <Image
-                      src={post.image}
-                      alt={post.title}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
+                    {post.featuredImage && typeof post.featuredImage === 'object' && (
+                      <Image
+                        src={post.featuredImage.url || ''}
+                        alt={post.title}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    )}
                     <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-lg text-xs font-medium text-indigo-600">
-                      {post.category}
+                      {typeof post.categories?.[0] === 'object'
+                        ? post.categories[0].name
+                        : 'Uncategorized'}
                     </div>
                   </Link>
                   <div className="flex-1 flex flex-col space-y-3">
                     <h3 className="text-xl font-bold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-2">
-                      <Link href={`/blog/${post.id}`}>{post.title}</Link>
+                      <Link href={`/blog/${post.slug}`}>{post.title}</Link>
                     </h3>
-                    <p className="text-slate-500 text-sm line-clamp-2 flex-1">{post.excerpt}</p>
+                    <p className="text-slate-500 text-sm line-clamp-2 flex-1">
+                      Explore our latest insights on {post.title}.
+                    </p>
                     <div className="flex items-center justify-between pt-2 mt-auto">
                       <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-slate-200 overflow-hidden relative">
-                          <Image
-                            src={`https://ui-avatars.com/api/?name=${post.author}&background=random`}
-                            alt={post.author}
-                            fill
-                          />
-                        </div>
+                        <div className="w-6 h-6 rounded-full bg-slate-200 overflow-hidden relative"></div>
                         <div className="text-xs text-slate-500">
-                          <span className="font-medium text-slate-900">{post.author}</span>
+                          <span className="font-medium text-slate-900">Admin</span>
                           <span className="mx-1">•</span>
-                          <span>{post.readTime}</span>
+                          <span>5 min read</span>
                         </div>
                       </div>
                       <ArrowUpRight
